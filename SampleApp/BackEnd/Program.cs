@@ -34,6 +34,10 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
+app.MapGet("/advent2023/day/{day}/part/{part}", (int day, int part, bool useTestData = false) => Advent2023.GetAnswer(day, part, useTestData))
+.WithName("GetAdventResult")
+.WithOpenApi();
+
 app.Run();
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
