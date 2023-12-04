@@ -30,7 +30,7 @@ public class Advent2023
 
     private static async Task<string> Day2(int part, IEnumerable<string> input)
     {
-        var name = "Trebuchet?!";
+        var name = "Cube Conundrum";
 
         if (part == 1)
         {
@@ -42,6 +42,7 @@ public class Advent2023
         }
     }
 
+    #region Day 1
     private static async Task<string> Day1Part1(IEnumerable<string> input)
     {
         var answer = 0;
@@ -75,7 +76,9 @@ public class Advent2023
         }
         return answer.ToString();
     }
+    #endregion
 
+    #region Day 2
     private static async Task<string> Day2Part1(IEnumerable<string> input)
     {
         var answer = 0;
@@ -102,6 +105,34 @@ public class Advent2023
             {
                 answer += game;
             }
+
+            game++;
+        }
+        return answer.ToString();
+    }
+
+    private static async Task<string> Day2Part2(IEnumerable<string> input)
+    {
+        var answer = 0;
+
+        var allPulls = new List<List<(int red, int green, int blue)>>();
+        foreach (var line in input)
+        {
+            allPulls.Add(Day2GetPullsForGame(line.Substring(line.IndexOf(':') + 1)));
+        }
+
+        int game = 1;
+        foreach (var pulls in allPulls)
+        {
+            int red = 0, green = 0, blue = 0;
+            foreach (var pull in pulls)
+            {
+                red = Math.Max(red, pull.red);
+                green = Math.Max(green, pull.green);
+                blue = Math.Max(blue, pull.blue);
+            }
+
+            answer += red * green * blue;
 
             game++;
         }
@@ -136,23 +167,14 @@ public class Advent2023
                         throw new InvalidOperationException();
                 }
             }
-            Console.WriteLine($"{red} red, {green} green, {blue} blue");
+            //Console.WriteLine($"{red} red, {green} green, {blue} blue");
             pulls.Add((red, green, blue));
         }
 
         return pulls;
     }
-
-    private static async Task<string> Day2Part2(IEnumerable<string> input)
-    {
-        var answer = 0;
-
-        foreach (var line in input)
-        {
-        }
-        return answer.ToString();
-    }
-
+    #endregion
+    
     private static async Task<IEnumerable<string>> GetInputLines(int day, bool useTestData)
     {
         return await File.ReadAllLinesAsync($"input/2023/AdventOfCode_Input_2023_Day{day}{(useTestData ? "_test" : "")}.txt");
