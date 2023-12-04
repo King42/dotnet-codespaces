@@ -6,11 +6,11 @@ public class Advent2023
         switch (day)
         {
             case 1:
-                return await Day1(part, input);
+                return Day1(part, input);
             case 2:
-                return await Day2(part, input);
+                return Day2(part, input);
             case 3:
-                return await Day3(part, input);
+                return Day3(part, input);
             default:
                 throw new NotImplementedException();
         }
@@ -18,21 +18,21 @@ public class Advent2023
 
     #region Day 1
 
-    private static async Task<string> Day1(int part, IEnumerable<string> input)
+    private static string Day1(int part, string[] input)
     {
         var name = "Trebuchet?!";
 
         if (part == 1)
         {
-            return await Day1Part1(input);
+            return Day1Part1(input);
         }
         else
         {
-            return await Day1Part2(input);
+            return Day1Part2(input);
         }
     }
 
-    private static async Task<string> Day1Part1(IEnumerable<string> input)
+    private static string Day1Part1(string[] input)
     {
         var answer = 0;
 
@@ -44,7 +44,7 @@ public class Advent2023
         return answer.ToString();
     }
 
-    private static async Task<string> Day1Part2(IEnumerable<string> input)
+    private static string Day1Part2(string[] input)
     {
         var answer = 0;
 
@@ -70,21 +70,21 @@ public class Advent2023
 
     #region Day 2
 
-    private static async Task<string> Day2(int part, IEnumerable<string> input)
+    private static string Day2(int part, string[] input)
     {
         var name = "Cube Conundrum";
 
         if (part == 1)
         {
-            return await Day2Part1(input);
+            return Day2Part1(input);
         }
         else
         {
-            return await Day2Part2(input);
+            return Day2Part2(input);
         }
     }
 
-    private static async Task<string> Day2Part1(IEnumerable<string> input)
+    private static string Day2Part1(string[] input)
     {
         var answer = 0;
 
@@ -116,7 +116,7 @@ public class Advent2023
         return answer.ToString();
     }
 
-    private static async Task<string> Day2Part2(IEnumerable<string> input)
+    private static string Day2Part2(string[] input)
     {
         var answer = 0;
 
@@ -183,21 +183,64 @@ public class Advent2023
 
     #region Day 3
 
-    private static async Task<string> Day3(int part, IEnumerable<string> input)
+    private static string Day3(int part, string[] input)
     {
         var name = "Gear Ratios";
 
         if (part == 1)
         {
-            return await Day3Part1(input);
+            return Day3Part1(input);
         }
         else
         {
-            return await Day3Part2(input);
+            return Day3Part2(input);
         }
     }
 
-    private static async Task<string> Day3Part1(IEnumerable<string> input)
+    private static string Day3Part1(string[] input)
+    {
+        var answer = 0;
+
+        var matrix = Day3_BuildMatrix(input);
+        var numOfRows = matrix.GetLength(0);
+        var numOfCols = matrix.GetLength(1);
+
+        for (var rowNumber = 0; rowNumber < numOfRows; rowNumber++)
+        {
+            int partNumber = 0;
+            bool isActivated = false;
+            int multiplier = 1;
+            for (var colNumber = numOfCols - 1; colNumber >= 0; colNumber--)
+            {
+                var cell = matrix[rowNumber, colNumber];
+                if (cell.digit != null)
+                {
+                    partNumber += cell.digit.Value * multiplier;
+                    isActivated |= cell.isActivated;
+
+                    multiplier *= 10;
+                }
+                else
+                {
+                    if (isActivated)
+                    {
+                        answer += partNumber;
+                    }
+                    partNumber = 0;
+                    isActivated = false;
+                    multiplier = 1;
+                }
+            }
+            
+            if (isActivated)
+            {
+                answer += partNumber;
+            }
+        }
+        return answer.ToString();
+    }
+
+    private static string Day3Part2(string[] input)
     {
         var answer = 0;
 
@@ -207,19 +250,70 @@ public class Advent2023
         return answer.ToString();
     }
 
-    private static async Task<string> Day3Part2(IEnumerable<string> input)
+    private static (int? digit, char? symbol, bool isActivated)[,] Day3_BuildMatrix(string[] input)
     {
-        var answer = 0;
+        var matrix = Day3_InitializeMatrix(input);
+        var numOfRows = matrix.GetLength(0);
+        var numOfCols = matrix.GetLength(1);
 
-        foreach (var line in input)
+        for (var rowNumber = 0; rowNumber < numOfRows; rowNumber++)
         {
+            for (var colNumber = 0; colNumber < numOfCols; colNumber++)
+            {
+                var item = matrix[rowNumber, colNumber];
+                if (item.symbol != null)
+                {
+                    for (var i = -1; i < 2; i++)
+                    {
+                        var x = rowNumber + i;
+                        if (rowNumber < 0 || rowNumber >= numOfRows) continue;
+                        for (var j = -1; j < 2; j++)
+                        {
+                            var y = colNumber + j;
+                            if (colNumber < 0 || colNumber >= numOfCols) continue;
+
+                            matrix[x, y].isActivated = true;
+                        }
+                    }
+                }
+            }
         }
-        return answer.ToString();
+
+        return matrix;
+    }
+
+    private static (int? digit, char? symbol, bool isActivated)[,] Day3_InitializeMatrix(string[] input)
+    {
+        var numOfRows = input.Length;
+        var numOfCols = input.First().Length;
+        var matrix = new (int?, char?, bool)[numOfRows, numOfCols];
+
+        for (int rowNumber = 0; rowNumber < matrix.GetLength(0); rowNumber++)
+        {
+            var strRow = input[rowNumber];
+            for (int colNumber = 0; colNumber < matrix.GetLength(1); colNumber++)
+            {
+                var c = strRow[colNumber];
+                if (int.TryParse(c.ToString(), out int digit))
+                {
+                    matrix[rowNumber, colNumber] = (digit, null, false);
+                }
+                else if (c == '.')
+                {
+                    matrix[rowNumber, colNumber] = (null, null, false);
+                }
+                else
+                {
+                    matrix[rowNumber, colNumber] = (null, c, false);
+                }
+            }
+        }
+        return matrix;
     }
 
     #endregion
     
-    private static async Task<IEnumerable<string>> GetInputLines(int day, bool useTestData)
+    private static async Task<string[]> GetInputLines(int day, bool useTestData)
     {
         return await File.ReadAllLinesAsync($"input/2023/AdventOfCode_Input_2023_Day{day}{(useTestData ? "_test" : "")}.txt");
     }
