@@ -9,10 +9,14 @@ public class Advent2023
                 return await Day1(part, input);
             case 2:
                 return await Day2(part, input);
+            case 3:
+                return await Day3(part, input);
             default:
                 throw new NotImplementedException();
         }
     }
+
+    #region Day 1
 
     private static async Task<string> Day1(int part, IEnumerable<string> input)
     {
@@ -28,21 +32,6 @@ public class Advent2023
         }
     }
 
-    private static async Task<string> Day2(int part, IEnumerable<string> input)
-    {
-        var name = "Cube Conundrum";
-
-        if (part == 1)
-        {
-            return await Day2Part1(input);
-        }
-        else
-        {
-            return await Day2Part2(input);
-        }
-    }
-
-    #region Day 1
     private static async Task<string> Day1Part1(IEnumerable<string> input)
     {
         var answer = 0;
@@ -76,9 +65,25 @@ public class Advent2023
         }
         return answer.ToString();
     }
+
     #endregion
 
     #region Day 2
+
+    private static async Task<string> Day2(int part, IEnumerable<string> input)
+    {
+        var name = "Cube Conundrum";
+
+        if (part == 1)
+        {
+            return await Day2Part1(input);
+        }
+        else
+        {
+            return await Day2Part2(input);
+        }
+    }
+
     private static async Task<string> Day2Part1(IEnumerable<string> input)
     {
         var answer = 0;
@@ -173,6 +178,45 @@ public class Advent2023
 
         return pulls;
     }
+
+    #endregion
+
+    #region Day 3
+
+    private static async Task<string> Day3(int part, IEnumerable<string> input)
+    {
+        var name = "Gear Ratios";
+
+        if (part == 1)
+        {
+            return await Day3Part1(input);
+        }
+        else
+        {
+            return await Day3Part2(input);
+        }
+    }
+
+    private static async Task<string> Day3Part1(IEnumerable<string> input)
+    {
+        var answer = 0;
+
+        foreach (var line in input)
+        {
+        }
+        return answer.ToString();
+    }
+
+    private static async Task<string> Day3Part2(IEnumerable<string> input)
+    {
+        var answer = 0;
+
+        foreach (var line in input)
+        {
+        }
+        return answer.ToString();
+    }
+
     #endregion
     
     private static async Task<IEnumerable<string>> GetInputLines(int day, bool useTestData)
