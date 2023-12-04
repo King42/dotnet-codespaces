@@ -112,9 +112,9 @@ public class Advent2023
     {
         var pulls = new List<(int red, int green, int blue)>();
 
-        int red = 0, green = 0, blue = 0;
         foreach (var strDice in line.Trim().Split(';', StringSplitOptions.RemoveEmptyEntries))
         {
+            int red = 0, green = 0, blue = 0;
             foreach (var strDie in strDice.Trim().Split(',', StringSplitOptions.RemoveEmptyEntries))
             {
                 var trimmedStrDie = strDie.Trim();
@@ -124,20 +124,21 @@ public class Advent2023
                 switch (strColor)
                 {
                     case "red":
-                        red += val;
+                        red = val;
                         break;
                     case "green":
-                        green += val;
+                        green = val;
                         break;
                     case "blue":
-                        blue += val;
+                        blue = val;
                         break;
                     default:
                         throw new InvalidOperationException();
                 }
             }
+            Console.WriteLine($"{red} red, {green} green, {blue} blue");
+            pulls.Add((red, green, blue));
         }
-        pulls.Add((red, green, blue));
 
         return pulls;
     }
