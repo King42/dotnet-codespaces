@@ -244,13 +244,67 @@ public class Advent2023
     {
         var answer = 0;
 
-        foreach (var line in input)
+        var matrix = Day3_BuildMatrix(input);
+        var numOfRows = matrix.GetLength(0);
+        var numOfCols = matrix.GetLength(1);
+
+        var gears = new Dictionary<(int x, int y), List<int>>();
+
+        for (var rowNumber = 0; rowNumber < numOfRows; rowNumber++)
         {
+            int partNumber = 0;
+            var adjacentGears = new List<(int, int)>();
+            int multiplier = 1;
+            for (var colNumber = numOfCols - 1; colNumber >= 0; colNumber--)
+            {
+                var cell = matrix[rowNumber, colNumber];
+                if (cell.digit != null)
+                {
+                    partNumber += cell.digit.Value * multiplier;
+                    adjacentGears.AddRange(cell.adjacentGears);
+
+                    multiplier *= 10;
+                }
+                else
+                {
+                    foreach (var gear in adjacentGears.Distinct())
+                    {
+                        if (!gears.ContainsKey(gear))
+                        {
+                            gears[gear] = new List<int>();
+                        }
+                        gears[gear].Add(partNumber);
+                    }
+
+                    partNumber = 0;
+                    adjacentGears.Clear();
+                    multiplier = 1;
+                }
+            }
+            
+            foreach (var gear in adjacentGears.Distinct())
+            {
+                if (!gears.ContainsKey(gear))
+                {
+                    gears[gear] = new List<int>();
+                }
+                gears[gear].Add(partNumber);
+            }
         }
+
+        foreach (var gear in gears.Keys)
+        {
+            var partNumbers = gears[gear];
+            if (partNumbers.Count == 2)
+            {
+                answer += partNumbers[0] * partNumbers[1];
+            }
+        }
+
         return answer.ToString();
     }
 
-    private static (int? digit, char? symbol, bool isActivated)[,] Day3_BuildMatrix(string[] input)
+    private static (int? digit, char? symbol, bool isActivated, List<(int x,int y)> adjacentGears)[,] Day3_BuildMatrix(string[] input)
     {
         var matrix = Day3_InitializeMatrix(input);
         var numOfRows = matrix.GetLength(0);
@@ -273,6 +327,10 @@ public class Advent2023
                             if (colNumber < 0 || colNumber >= numOfCols) continue;
 
                             matrix[x, y].isActivated = true;
+                            if (item.symbol == '*')
+                            {
+                                matrix[x, y].adjacentGears.Add((rowNumber, colNumber));
+                            }
                         }
                     }
                 }
@@ -282,11 +340,11 @@ public class Advent2023
         return matrix;
     }
 
-    private static (int? digit, char? symbol, bool isActivated)[,] Day3_InitializeMatrix(string[] input)
+    private static (int? digit, char? symbol, bool isActivated, List<(int, int)> adjacentGears)[,] Day3_InitializeMatrix(string[] input)
     {
         var numOfRows = input.Length;
         var numOfCols = input.First().Length;
-        var matrix = new (int?, char?, bool)[numOfRows, numOfCols];
+        var matrix = new (int?, char?, bool, List<(int, int)>)[numOfRows, numOfCols];
 
         for (int rowNumber = 0; rowNumber < matrix.GetLength(0); rowNumber++)
         {
@@ -296,15 +354,15 @@ public class Advent2023
                 var c = strRow[colNumber];
                 if (int.TryParse(c.ToString(), out int digit))
                 {
-                    matrix[rowNumber, colNumber] = (digit, null, false);
+                    matrix[rowNumber, colNumber] = (digit, default, default, new List<(int, int)>());
                 }
                 else if (c == '.')
                 {
-                    matrix[rowNumber, colNumber] = (null, null, false);
+                    matrix[rowNumber, colNumber] = (default, default, default, new List<(int, int)>());
                 }
                 else
                 {
-                    matrix[rowNumber, colNumber] = (null, c, false);
+                    matrix[rowNumber, colNumber] = (default, c, default, new List<(int, int)>());
                 }
             }
         }
