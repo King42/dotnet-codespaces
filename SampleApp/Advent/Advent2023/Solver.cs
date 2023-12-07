@@ -15,6 +15,8 @@ public class Solver
                 return Day3.GetAnswer(part, input);
             case 4:
                 return Day4.GetAnswer(part, input);
+            case 5:
+                return Day5.GetAnswer(part, input);
             default:
                 throw new NotImplementedException();
         }
