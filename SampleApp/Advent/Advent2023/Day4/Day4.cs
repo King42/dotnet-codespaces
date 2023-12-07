@@ -26,21 +26,9 @@ public class Day4
 
         foreach (var row in data)
         {
-            var winningNumbers = row.set1Numbers;
-            var potentialNumbers = row.set2Numbers;
-            int numOfWinners = 0;
-
-            foreach (var potential in potentialNumbers)
+            if (row.numOfMatches > 0)
             {
-                if (winningNumbers.Contains(potential))
-                {
-                    numOfWinners++;
-                }
-            }
-
-            if (numOfWinners > 0)
-            {
-                answer += Math.Pow(2, numOfWinners - 1);
+                answer += Math.Pow(2, row.numOfMatches - 1);
             }
         }
     
@@ -49,16 +37,31 @@ public class Day4
 
     private static string Day4Part2(string[] input)
     {
-        var answer = 0;
-    
+        var data = GetData(input);
+
+        int i = 0;
+        var winners = data.ToDictionary(k => i++, v => 1);
+
+        for (int rowIndex = 0; rowIndex < data.Count; rowIndex++)
+        {
+            var row = data[rowIndex];
+            var numOfCards = winners[rowIndex];
+            var numOfMatches = row.numOfMatches;
+            for (int offset = 1; offset <= numOfMatches; offset++)
+            {
+                winners[rowIndex + offset] += numOfCards;
+            }
+        }
+
+        var answer = winners.Sum(kv => kv.Value);
         return answer.ToString();
     }
 
     private static readonly Regex Parser = new Regex(@"\w+ +(?<id>\d+):(?: +(?<set1>\d+))+ \|(?: +(?<set2>\d+))+");
 
-    private static List<(int cardNumber, List<int> set1Numbers, List<int> set2Numbers)> GetData(string[] input)
+    private static List<(int cardNumber, int numOfMatches)> GetData(string[] input)
     {
-        var data = new List<(int cardNumber, List<int> set1Numbers, List<int> set2Numbers)>();
+        var data = new List<(int, int)>();
 
         foreach (var line in input)
         {
@@ -66,7 +69,17 @@ public class Day4
             var cardNumber = int.Parse(match.Groups["id"].Value);
             var set1Numbers = match.Groups["set1"].Captures.Select(c => int.Parse(c.Value)).ToList();
             var set2Numbers = match.Groups["set2"].Captures.Select(c => int.Parse(c.Value)).ToList();
-            data.Add((cardNumber, set1Numbers, set2Numbers));
+
+            int numOfMatches = 0;
+
+            foreach (var potential in set2Numbers)
+            {
+                if (set1Numbers.Contains(potential))
+                {
+                    numOfMatches++;
+                }
+            }
+            data.Add((cardNumber, numOfMatches));
         }
 
         return data;
