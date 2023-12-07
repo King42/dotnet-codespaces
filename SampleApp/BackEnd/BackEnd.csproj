@@ -13,9 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="./input/**/*.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\Advent\Advent.csproj" />
   </ItemGroup>
 
 </Project>
