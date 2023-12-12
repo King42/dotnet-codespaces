@@ -9,8 +9,14 @@ public class Day5Data
 
 public class Day5Map
 {
-    public string SourceItem { get; set; }
-    public string TargetItem { get; set; }
+    public string? SourceItem { get; set; }
+    public string? TargetItem { get; set; }
 
-    public List<(int start, int offset)> Vectors = new List<(int start, int offset)>();
+    public List<(long sourceStart, long targetStart, long rangeLength, long offsetToTarget)> Vectors = new List<(long, long, long, long)>();
+
+    public bool SourceIsInRange(long candidateNumber, long sourceStart, long rangeLength)
+    {
+        var sourceEnd = sourceStart + rangeLength - 1;
+        return sourceStart <= candidateNumber && candidateNumber <= sourceEnd;
+    }
 }
