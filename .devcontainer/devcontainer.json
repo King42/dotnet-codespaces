@@ -32,8 +32,7 @@
         }
     },
     "forwardPorts": [
-        8080,
-        8081
+        8080
     ],
     "postCreateCommand": "cd ./SampleApp && dotnet restore",
     "hostRequirements": {
@@ -46,11 +45,7 @@
     },
     "portsAttributes": {
         "8080": {
-            "label": "Weather API",
-            "onAutoForward": "notify"
-        },
-        "8081": {
-            "label": "Weather Front End",
+            "label": "Web API",
             "onAutoForward": "notify"
         }
     }

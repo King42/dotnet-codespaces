@@ -2,9 +2,9 @@ namespace Advent.Advent2023;
 
 using System.Text.RegularExpressions;
 
-public class Day5
+public static class Day5
 {
-    public string Name { get; } = "If You Give A Seed A Fertilizer";
+    public const string Name = "If You Give A Seed A Fertilizer";
 
     public static string GetAnswer(int part, string[] input)
     {

@@ -1,8 +1,8 @@
 namespace Advent.Advent2023;
 
-public class Day3
+public static class Day3
 {
-    public string Name { get; } = "Gear Ratios";
+    public const string Name = "Gear Ratios";
 
     public static string GetAnswer(int part, string[] input)
     {
