@@ -4,6 +4,8 @@ public class Day5Data
 {
     public List<long> Seeds { get; set; } = new List<long>();
 
+    public List<(long start, long length)> SeedRanges { get; set; } = new List<(long start, long length)>();
+
     public List<Day5Map> Maps { get; set; } = new List<Day5Map>();
 }
 

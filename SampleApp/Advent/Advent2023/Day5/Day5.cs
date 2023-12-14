@@ -20,16 +20,29 @@ public class Day5
 
     private static string Day5Part1(string[] input)
     {
-        var locations = new List<long>();
+        return Day5Impl(input);
+    }
 
+    private static string Day5Part2(string[] input)
+    {
+        return Day5ImplWithRanges(input);
+    }
+
+    private static string Day5Impl(string[] input)
+    {
         var data = GetData(input);
 
-        foreach (var seed in data.Seeds)
-        {
-            long itemValue = seed;
+        var nextItems = data.Seeds;
 
-            foreach (var map in data.Maps)
+        foreach (var map in data.Maps)
+        {
+            var items = nextItems;
+            nextItems = new List<long>();
+
+            foreach (var item in items)
             {
+                long itemValue = item;
+
                 (long sourceStart, long targetStart, long rangeLength, long offsetToTarget) matchingVector = default;
                 foreach (var vector in map.Vectors)
                 {
@@ -38,20 +51,67 @@ public class Day5
                         matchingVector = vector;
                     }
                 }
-                itemValue += matchingVector.offsetToTarget;
+
+                nextItems.Add(itemValue + matchingVector.offsetToTarget);
+            }
+        }
+
+        return nextItems.Min().ToString();
+    }
+
+    private static string Day5ImplWithRanges(string[] input)
+    {
+        throw new NotImplementedException();
+        
+        var locations = new List<long>();
+
+        var data = GetData(input);
+
+        var itemRanges = data.SeedRanges;
+
+        for (int i = 0; i < itemRanges.Count; i++)
+        {
+            var itemRange = itemRanges[i];
+
+            foreach (var map in data.Maps)
+            {
+                var firstItem = itemRange.start;
+                long lastItem = itemRange.start + itemRange.length;
+
+                (long sourceStart, long targetStart, long rangeLength, long offsetToTarget) matchingVector = default;
+                foreach (var vector in map.Vectors)
+                {
+                    if (map.SourceIsInRange(lastItem, vector.sourceStart, vector.rangeLength))
+                    {
+                        matchingVector = vector;
+
+                        long newFirstItem, newLength;
+                        if (map.SourceIsInRange(firstItem, vector.sourceStart, vector.rangeLength))
+                        {
+                            // entire seed range is contained within this vector
+                            newFirstItem = firstItem + matchingVector.offsetToTarget;
+                            newLength = itemRange.length;
+                        }
+                        else
+                        {
+                            // only part of seed range is contained within this vector
+                            newFirstItem = matchingVector.sourceStart + matchingVector.offsetToTarget;
+                            newLength = lastItem - matchingVector.sourceStart;
+
+                            // add items not contained within the vector back onto the end of the list
+                            itemRanges.Add((itemRange.start, itemRange.length - newLength));
+                        }
+                        
+                        itemRange = (newFirstItem, newLength);
+                    }
+                }
+                //itemValue += matchingVector.offsetToTarget;
             }
 
-            locations.Add(itemValue);
+            //locations.Add(itemValue);
         }
 
         return locations.Min().ToString();
-    }
-
-    private static string Day5Part2(string[] input)
-    {
-        var answer = 0L;
-
-        throw new NotImplementedException();
     }
    
     private static Regex SeedLineParser = new Regex(@"seeds: (?<numbers>.*)");
@@ -60,10 +120,18 @@ public class Day5
 
     private static Day5Data GetData(string[] input)
     {
+        var seedValues = Parsers.ExtractNumbersFromList<long>(SeedLineParser.Match(input.First()).Groups["numbers"].Value);
         var data = new Day5Data()
         {
-            Seeds = Parsers.ExtractNumbersFromList<long>(SeedLineParser.Match(input.First()).Groups["numbers"].Value)
+            Seeds = seedValues
         };
+
+        for (int i = 0; i < seedValues.Count; i += 2)
+        {
+            var start = seedValues[i];
+            var length = seedValues[i+1];
+            data.SeedRanges.Add((start, length));
+        }
 
         bool nameParsed = false;
         Day5Map? map = null;
