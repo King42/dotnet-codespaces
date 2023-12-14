@@ -43,10 +43,10 @@ public class Day5
             {
                 long itemValue = item;
 
-                (long sourceStart, long targetStart, long rangeLength, long offsetToTarget) matchingVector = default;
+                (long sourceStart, long sourceEnd, long targetStart, long targetEnd, long rangeLength, long offsetToTarget) matchingVector = default;
                 foreach (var vector in map.Vectors)
                 {
-                    if (map.SourceIsInRange(itemValue, vector.sourceStart, vector.rangeLength))
+                    if (map.SourceIsInRange(itemValue, vector.sourceStart, vector.sourceEnd))
                     {
                         matchingVector = vector;
                     }
@@ -61,57 +61,68 @@ public class Day5
 
     private static string Day5ImplWithRanges(string[] input)
     {
-        throw new NotImplementedException();
-        
-        var locations = new List<long>();
-
         var data = GetData(input);
 
-        var itemRanges = data.SeedRanges;
+        var nextItemRanges = data.SeedRanges;
 
-        for (int i = 0; i < itemRanges.Count; i++)
+        foreach (var map in data.Maps)
         {
-            var itemRange = itemRanges[i];
+            var itemRanges = nextItemRanges;
+            nextItemRanges = new List<(long start, long end, long length)>();
 
-            foreach (var map in data.Maps)
+            for (int i = 0; i < itemRanges.Count; i++)
             {
+                var itemRange = itemRanges[i];
                 var firstItem = itemRange.start;
-                long lastItem = itemRange.start + itemRange.length;
+                long lastItem = itemRange.end;
 
-                (long sourceStart, long targetStart, long rangeLength, long offsetToTarget) matchingVector = default;
+                var newItemRange = itemRange;
+
                 foreach (var vector in map.Vectors)
                 {
-                    if (map.SourceIsInRange(lastItem, vector.sourceStart, vector.rangeLength))
-                    {
-                        matchingVector = vector;
+                    bool firstItemInRange = map.SourceIsInRange(firstItem, vector.sourceStart, vector.sourceEnd);
+                    bool lastItemInRange = map.SourceIsInRange(lastItem, vector.sourceStart, vector.sourceEnd);
 
-                        long newFirstItem, newLength;
-                        if (map.SourceIsInRange(firstItem, vector.sourceStart, vector.rangeLength))
+                    if (lastItemInRange)
+                    {
+                        if (firstItemInRange)
                         {
-                            // entire seed range is contained within this vector
-                            newFirstItem = firstItem + matchingVector.offsetToTarget;
-                            newLength = itemRange.length;
+                            // capture entire item range which is contained within this vector
+                            newItemRange.start = firstItem + vector.offsetToTarget;
+                            newItemRange.end = lastItem + vector.offsetToTarget;
+                            newItemRange.length = newItemRange.end - newItemRange.start + 1;
                         }
                         else
                         {
-                            // only part of seed range is contained within this vector
-                            newFirstItem = matchingVector.sourceStart + matchingVector.offsetToTarget;
-                            newLength = lastItem - matchingVector.sourceStart;
+                            // capture ending section of item range that is contained within this vector
+                            newItemRange.start = vector.targetStart;
+                            newItemRange.end = lastItem + vector.offsetToTarget;
+                            newItemRange.length = newItemRange.end - newItemRange.start + 1;
 
-                            // add items not contained within the vector back onto the end of the list
-                            itemRanges.Add((itemRange.start, itemRange.length - newLength));
+                            // add beginning section of item range not contained within the vector back onto the end of the list
+                            itemRanges.Add((firstItem, vector.sourceStart - 1, itemRange.length - newItemRange.length));
                         }
-                        
-                        itemRange = (newFirstItem, newLength);
+                        break;
+                    }
+                    else if (map.SourceIsInRange(vector.sourceEnd, firstItem, lastItem))
+                    {
+                        // capture ending section of item range which extends beyond the vector (0 offset)
+                        newItemRange.start = vector.sourceEnd + 1;
+                        newItemRange.end = lastItem;
+                        newItemRange.length = newItemRange.end - newItemRange.start + 1;
+
+                        // add beginning section of item range back onto the end of the list
+                        itemRanges.Add((firstItem, vector.sourceEnd, itemRange.length - newItemRange.length));
+
+                        break;
                     }
                 }
-                //itemValue += matchingVector.offsetToTarget;
-            }
 
-            //locations.Add(itemValue);
+                nextItemRanges.Add(newItemRange);
+            }
         }
 
-        return locations.Min().ToString();
+        return nextItemRanges.Min().start.ToString();
     }
    
     private static Regex SeedLineParser = new Regex(@"seeds: (?<numbers>.*)");
@@ -130,7 +141,10 @@ public class Day5
         {
             var start = seedValues[i];
             var length = seedValues[i+1];
-            data.SeedRanges.Add((start, length));
+
+            var end = start + length - 1;
+
+            data.SeedRanges.Add((start, end, length));
         }
 
         bool nameParsed = false;
@@ -167,7 +181,11 @@ public class Day5
                 long sourceStart = long.Parse(match.Groups["sourceStart"].Value);
                 long targetStart = long.Parse(match.Groups["targetStart"].Value);
                 long rangeLength = long.Parse(match.Groups["rangeLength"].Value);
-                map.Vectors.Add((sourceStart, targetStart, rangeLength, targetStart - sourceStart));
+
+                long sourceEnd = sourceStart + rangeLength - 1;
+                long targetEnd = targetStart + rangeLength - 1;
+
+                map.Vectors.Add((sourceStart, sourceEnd, targetStart, targetEnd, rangeLength, targetStart - sourceStart));
             }
         }
 
