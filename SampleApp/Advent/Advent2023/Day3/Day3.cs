@@ -29,6 +29,9 @@ public static class Day3
             int partNumber = 0;
             bool isActivated = false;
             int multiplier = 1;
+
+            // for each row walk backwards through the columns to build the part number digit by digit
+            // and also record if any of the cells were activated (adjacent to a symbol)
             for (var colNumber = numOfCols - 1; colNumber >= 0; colNumber--)
             {
                 var cell = matrix[rowNumber, colNumber];
@@ -41,16 +44,20 @@ public static class Day3
                 }
                 else
                 {
+                    // after we come to a cell that isn't a digit we've reached the end of the part number
                     if (isActivated)
                     {
                         answer += partNumber;
                     }
+
+                    // reset the variables to continue scanning for more part numbers
                     partNumber = 0;
                     isActivated = false;
                     multiplier = 1;
                 }
             }
             
+            // if the part number starts at the left end of the row then the for loop will exit without processing that part number
             if (isActivated)
             {
                 answer += partNumber;
@@ -123,6 +130,7 @@ public static class Day3
         return answer.ToString();
     }
 
+    // Walk through the matrix and for every cell (tuple) flag it as activated if it's next to a symbol as well as recording which gears are adjacent to it
     private static (int? digit, char? symbol, bool isActivated, List<(int x,int y)> adjacentGears)[,] Day3_BuildMatrix(string[] input)
     {
         var matrix = Day3_InitializeMatrix(input);
@@ -136,6 +144,7 @@ public static class Day3
                 var item = matrix[rowNumber, colNumber];
                 if (item.symbol != null)
                 {
+                    // if we find a symbol mark every adjacent cell as activated
                     for (var i = -1; i < 2; i++)
                     {
                         var x = rowNumber + i;
@@ -146,6 +155,7 @@ public static class Day3
                             if (colNumber < 0 || colNumber >= numOfCols) continue;
 
                             matrix[x, y].isActivated = true;
+                            // if it's a gear also add it to the list of gears adjacent to that cell
                             if (item.symbol == '*')
                             {
                                 matrix[x, y].adjacentGears.Add((rowNumber, colNumber));
@@ -159,6 +169,8 @@ public static class Day3
         return matrix;
     }
 
+    // Initialize a matrix of tuples
+    // Effectively we're just differentiating cells as digits, symbols, or empty (periods) here
     private static (int? digit, char? symbol, bool isActivated, List<(int, int)> adjacentGears)[,] Day3_InitializeMatrix(string[] input)
     {
         var numOfRows = input.Length;

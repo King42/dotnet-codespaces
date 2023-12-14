@@ -40,6 +40,8 @@ public static class Day4
         var data = GetData(input);
 
         int i = 0;
+        // create a dictionary mapping card numbers to the number of cards
+        // initially there is 1 copy of each card (the original)
         var winners = data.ToDictionary(k => i++, v => 1);
 
         for (int rowIndex = 0; rowIndex < data.Count; rowIndex++)
@@ -47,6 +49,7 @@ public static class Day4
             var row = data[rowIndex];
             var numOfCards = winners[rowIndex];
             var numOfMatches = row.numOfMatches;
+            // add more copies of the upcoming cards
             for (int offset = 1; offset <= numOfMatches; offset++)
             {
                 winners[rowIndex + offset] += numOfCards;
@@ -59,6 +62,7 @@ public static class Day4
 
     private static readonly Regex Parser = new Regex(@"\w+ +(?<id>\d+):(?: +(?<set1>\d+))+ \|(?: +(?<set2>\d+))+");
 
+    // for each card (line) find the number of matches
     private static List<(int cardNumber, int numOfMatches)> GetData(string[] input)
     {
         var data = new List<(int, int)>();

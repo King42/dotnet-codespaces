@@ -76,6 +76,8 @@ public static class Day2
         return answer.ToString();
     }
 
+    // each line is converted to a list of "pulls"
+    // each "pull" is a tuple with the number of dice pulled for each color
     private static List<(int red, int green, int blue)> Day2GetPullsForGame(string line)
     {
         var pulls = new List<(int red, int green, int blue)>();

@@ -22,6 +22,10 @@ public static class Day1
 
         foreach (var line in input)
         {
+            // abusing the fact that you can do assignments within conditionals
+            // .First(c => <real conditional> && <assignment conditional>)
+            // The real conditional comes first, if it evaluates as false the conditional is short-circuited and the assignment conditional isn't evaluated
+            // the assignment conditional has the assignment in it and it MUST evaluate to true to break out of the call to First()
             line.First(c => int.TryParse(c.ToString(), out int firstDigit) && (answer += firstDigit * 10) != -1);
             line.Reverse().First(c => int.TryParse(c.ToString(), out int firstDigit) && (answer += firstDigit) != -1);
         }
