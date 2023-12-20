@@ -1,5 +1,6 @@
 namespace Advent.Advent2023;
 
+using System.Reflection.Metadata.Ecma335;
 using System.Text.RegularExpressions;
 
 public static class Day9
@@ -18,9 +19,19 @@ public static class Day9
         }
     }
 
-    private static string Part1(object data)
+    private static string Part1(List<List<List<int>>> data)
     {
-        throw new NotImplementedException();
+        var answer = 0L;
+
+        foreach (var sequenceDeconstruction in data)
+        {
+            var nextNum = 0;
+            sequenceDeconstruction.Reverse();
+            sequenceDeconstruction.ForEach(s => nextNum += s.Last());
+            answer += nextNum;
+        }
+
+        return answer.ToString();
     }
 
     private static string Part2(object data)
@@ -28,8 +39,34 @@ public static class Day9
         throw new NotImplementedException();
     }
 
-    private static object GetData(string[] input, bool part2)
+    private static List<List<List<int>>> GetData(string[] input, bool part2)
     {
-        throw new NotImplementedException();
+        var data = new List<List<List<int>>>();
+
+        foreach (var line in input)
+        {
+            var sequenceDeconstruction = new List<List<int>>();
+
+            var sequence = Parsers.ExtractNumbersFromList<int>(line);
+            while (!sequence.All(n => n == 0))
+            {
+                sequenceDeconstruction.Add(sequence);
+                sequence = DeconstructSequence(sequence);
+            }
+
+            data.Add(sequenceDeconstruction);
+        }
+
+        return data;
+    }
+
+    private static List<int> DeconstructSequence(List<int> sequence)
+    {
+        var nextSequence = new List<int>();
+        for (int i = 0; i < sequence.Count - 1; i++)
+        {
+            nextSequence.Add(sequence[i + 1] - sequence[i]);
+        }
+        return nextSequence;
     }
 }

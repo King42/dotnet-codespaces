@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 public static class Parsers
 {
-    private static Regex NumberListParser = new Regex(@"(?: *(?<numbers>\d+) *)+");
+    private static Regex NumberListParser = new Regex(@"(?: *(?<numbers>-?\d+) *)+");
 
     public static List<T> ExtractNumbersFromList<T>(string input) where T : IParsable<T>
     {
