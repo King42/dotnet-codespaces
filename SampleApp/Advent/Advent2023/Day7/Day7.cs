@@ -1,5 +1,3 @@
-using Microsoft.VisualBasic;
-
 namespace Advent.Advent2023;
 
 public static class Day7

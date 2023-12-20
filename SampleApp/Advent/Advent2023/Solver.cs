@@ -23,6 +23,8 @@ public class Solver
                 return Day7.GetAnswer(part, input);
             case 8:
                 return Day8.GetAnswer(part, input);
+            case 9:
+                return Day9.GetAnswer(part, input);
             default:
                 throw new NotImplementedException();
         }
