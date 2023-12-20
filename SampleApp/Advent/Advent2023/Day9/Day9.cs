@@ -34,9 +34,19 @@ public static class Day9
         return answer.ToString();
     }
 
-    private static string Part2(object data)
+    private static string Part2(List<List<List<int>>> data)
     {
-        throw new NotImplementedException();
+        var answer = 0L;
+
+        foreach (var sequenceDeconstruction in data)
+        {
+            var nextNum = 0;
+            sequenceDeconstruction.Reverse();
+            sequenceDeconstruction.ForEach(s => nextNum = s.First() - nextNum);
+            answer += nextNum;
+        }
+
+        return answer.ToString();
     }
 
     private static List<List<List<int>>> GetData(string[] input, bool part2)
