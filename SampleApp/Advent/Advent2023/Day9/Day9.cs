@@ -1,8 +1,5 @@
 namespace Advent.Advent2023;
 
-using System.Reflection.Metadata.Ecma335;
-using System.Text.RegularExpressions;
-
 public static class Day9
 {
     public static string Name { get; } = "Mirage Maintenance";
