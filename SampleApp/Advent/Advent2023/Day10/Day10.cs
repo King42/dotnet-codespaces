@@ -24,26 +24,44 @@ public static class Day10
         (int x, int y) curPos = data.startPos;
         var c = data.matrix[curPos.x, curPos.y];
         var joint = Joints[c];
-        var prevOffset = joint.offset1;
-        (int x, int y) nextPos = (curPos.x + prevOffset.xOffset, curPos.y + prevOffset.yOffset);
+        var prevDirectedJoint = joint.directedJoint1;
+        (int x, int y) nextPos = (curPos.x + prevDirectedJoint.OffsetToNextJoint.xOffset, curPos.y + prevDirectedJoint.OffsetToNextJoint.yOffset);
 
-        while (nextPos != data.startPos)
+        while ((nextPos.x, nextPos.y) != (data.startPos.x, data.startPos.y))
         {
             c = data.matrix[nextPos.x, nextPos.y];
             joint = Joints[c];
-            var offset = (-prevOffset.xOffset, -prevOffset.yOffset) == joint.offset1 ? joint.offset2 : joint.offset1;
+            var directedJoint = prevDirectedJoint.OutboundDirection == joint.directedJoint1.InboundDirection ? joint.directedJoint1 : joint.directedJoint2;
 
             curPos = nextPos;
-            nextPos = (curPos.x + offset.xOffset, curPos.y + offset.yOffset);
-            prevOffset = offset;
+            nextPos = (curPos.x + directedJoint.OffsetToNextJoint.xOffset, curPos.y + directedJoint.OffsetToNextJoint.yOffset);
+            prevDirectedJoint = directedJoint;
             pathLen++;
         }
 
         return (pathLen / 2).ToString();
     }
 
-    private static string Part2(object data)
+    private static string Part2((char [,] matrix, (int x, int y) startPos) data)
     {
+        var markerMatrix = new char[data.matrix.GetLength(0), data.matrix.GetLength(1)];
+        (int x, int y) curPos = data.startPos;
+        var c = data.matrix[curPos.x, curPos.y];
+        var joint = Joints[c];
+        var prevDirectedJoint = joint.directedJoint1;
+        (int x, int y) nextPos = (curPos.x + prevDirectedJoint.OffsetToNextJoint.xOffset, curPos.y + prevDirectedJoint.OffsetToNextJoint.yOffset);
+
+        while ((nextPos.x, nextPos.y) != (data.startPos.x, data.startPos.y))
+        {
+            c = data.matrix[nextPos.x, nextPos.y];
+            joint = Joints[c];
+            var directedJoint = prevDirectedJoint.OutboundDirection == joint.directedJoint1.InboundDirection ? joint.directedJoint1 : joint.directedJoint2;
+
+            curPos = nextPos;
+            nextPos = (curPos.x + directedJoint.OffsetToNextJoint.xOffset, curPos.y + directedJoint.OffsetToNextJoint.yOffset);
+            prevDirectedJoint = directedJoint;
+        }
+
         throw new NotImplementedException();
     }
 
@@ -72,13 +90,35 @@ public static class Day10
         return (matrix, startPos);
     }
 
-    private static readonly Dictionary<char, ((int xOffset, int yOffset) offset1, (int xOffset, int yOffset) offset2)> Joints = 
-        new Dictionary<char, ((int xOffset, int yOffset) offset1, (int xOffset, int yOffset) offset2)>() {
-        ['-'] = ((-1, 0), (1, 0)),
-        ['|'] = ((0, -1), (0, 1)),
-        ['F'] = ((1, 0), (0, 1)),
-        ['7'] = ((-1, 0), (0, 1)),
-        ['L'] = ((0, -1), (1, 0)),
-        ['J'] = ((-1, 0), (0, -1)),
+    private static readonly Dictionary<char, (DirectedJoint directedJoint1, DirectedJoint directedJoint2)> Joints = 
+        new Dictionary<char,(DirectedJoint directedJoint1, DirectedJoint directedJoint2)>() {
+        ['-'] = (new DirectedJoint(Direction.W, Direction.W, -1, 0), new DirectedJoint(Direction.E, Direction.E, 1, 0)),
+        ['|'] = (new DirectedJoint(Direction.N, Direction.N, 0, -1), new DirectedJoint(Direction.S, Direction.S, 0, 1)),
+        ['F'] = (new DirectedJoint(Direction.N, Direction.E, 1, 0), new DirectedJoint(Direction.W, Direction.S, 0, 1)),
+        ['7'] = (new DirectedJoint(Direction.N, Direction.W, -1, 0), new DirectedJoint(Direction.E, Direction.S, 0, 1)),
+        ['L'] = (new DirectedJoint(Direction.W, Direction.N, 0, -1), new DirectedJoint(Direction.S, Direction.E, 1, 0)),
+        ['J'] = (new DirectedJoint(Direction.S, Direction.W, -1, 0), new DirectedJoint(Direction.E, Direction.N, 0, -1)),
     };
+
+    private struct DirectedJoint
+    {
+        public DirectedJoint(Direction inboundDirection, Direction outboundDirection, int xOffset, int yOffset)
+        {
+            InboundDirection = inboundDirection;
+            OutboundDirection = outboundDirection;
+            OffsetToNextJoint = (xOffset, yOffset);
+        }
+
+        public Direction InboundDirection;
+        public Direction OutboundDirection;
+        public (int xOffset, int yOffset) OffsetToNextJoint;
+    }
+
+    private enum Direction
+    {
+        N,
+        E,
+        S,
+        W
+    }
 }
