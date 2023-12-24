@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace Advent.Advent2023;
 
 public static class Day10

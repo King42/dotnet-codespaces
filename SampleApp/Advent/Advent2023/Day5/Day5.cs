@@ -1,6 +1,6 @@
-namespace Advent.Advent2023;
-
 using System.Text.RegularExpressions;
+
+namespace Advent.Advent2023;
 
 public static class Day5
 {
