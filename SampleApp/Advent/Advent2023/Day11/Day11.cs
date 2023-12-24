@@ -8,15 +8,15 @@ public static class Day11
     {
         if (part == 1)
         {
-            return SolvePart1(GetData(input, false));
+            return Solve(GetData(input), 2L);
         }
         else
         {
-            return SolvePart2(GetData(input, true));
+            return Solve(GetData(input), 1000000L);
         }
     }
 
-    private static string SolvePart1((List<(int col, int row)> galaxies, List<int> emptyColumns, List<int> emptyRows) data)
+    private static string Solve((List<(int col, int row)> galaxies, List<int> emptyColumns, List<int> emptyRows) data, long expansionMultiplier)
     {
         var answer = 0L;
 
@@ -31,11 +31,13 @@ public static class Day11
 
                 var leftCol = Math.Min(galaxy1.col, galaxy2.col);
                 var rightCol = Math.Max(galaxy1.col, galaxy2.col);
-                var width = rightCol - leftCol + data.emptyColumns.Count(c => leftCol < c && c < rightCol);
+                var emptyColumns = data.emptyColumns.Count(c => leftCol < c && c < rightCol);
+                var width = rightCol - leftCol + (expansionMultiplier * emptyColumns) - emptyColumns;
 
                 var botRow = Math.Min(galaxy1.row, galaxy2.row);
                 var topRow = Math.Max(galaxy1.row, galaxy2.row);
-                var height = topRow - botRow + data.emptyRows.Count(r => botRow < r && r < topRow);
+                var emptyRows = data.emptyRows.Count(r => botRow < r && r < topRow);
+                var height = topRow - botRow + (expansionMultiplier * emptyRows) - emptyRows;
 
                 answer += width + height;
             }
@@ -44,12 +46,7 @@ public static class Day11
         return (answer / 2).ToString();
     }
 
-    private static string SolvePart2(object data)
-    {
-        throw new NotImplementedException();
-    }
-
-    private static (List<(int col, int row)> galaxies, List<int> emptyColumns, List<int> emptyRows) GetData(string[] input, bool part2)
+    private static (List<(int col, int row)> galaxies, List<int> emptyColumns, List<int> emptyRows) GetData(string[] input)
     {
         var galaxies = new List<(int col, int row)>();
         var emptyColumns = Enumerable.Range(0, input.First().Length).ToList();
